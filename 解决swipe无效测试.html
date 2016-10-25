@@ -1,0 +1,242 @@
+﻿<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <script src="_js/zepto.min.js"></script>
+    <script src="_js/touch.min.js"></script>
+    <link href="_css/animate.min.css" type="text/css" rel="stylesheet">
+    <style type="text/css" rel="stylesheet">
+        *{
+            margin: 0px;
+            padding: 0px;
+        }
+        #container{
+            list-style-type: none;
+        }
+        body{
+            background: black;
+        }
+        #container li{
+            width: 100px;
+            height: 100px;
+            float: left;
+            overflow: hidden;
+        }
+        .large{
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            background: black;
+            top: 0;
+            left: 0;
+
+        }
+        body{
+            cursor: pointer;
+        }
+    </style>
+    <title></title>
+</head>
+<body>
+
+<ul class="img-container" id="container">
+</ul>
+<div class="large animated fadeIn"  id="largeImg" style="display: none">
+    <img id="large_img" src="img/1.jpg"/>
+</div>
+</body>
+<script>
+
+
+    var total=19;
+    var zWin=$(window);
+    var zheight=zWin.height();
+
+    var rander=function(){
+        var padding=2;
+        var winWidth=zWin.width();
+        var picWidth=Math.floor((winWidth-padding*3)/4);
+        var li='';
+        for(var i=1;i<total;i++){
+            var p=padding;
+            var imgSrc='img/'+i+".jpg";
+            if(i%4==1){
+                p=0;
+            }
+            li+='<li data-id="'+i+'" class="animated bounceIn" style="width: '+picWidth+'px;height:'+picWidth+'px;padding-top:2px;padding-left:'+p+'px;"><canvas id="canv_'+i+'"></canvas></li>';
+            var imageObj=new Image();
+            imageObj.index=i;
+            imageObj.src=imgSrc;
+            imageObj.width=this.width;
+            imageObj.height=this.height;
+            imageObj.onload=function(){
+                var cvs=$('#canv_'+this.index)[0].getContext("2d");
+                cvs.width=this.width;
+                cvs.height=this.height;
+                cvs.drawImage(this,0,0,picWidth,picWidth);
+            }
+
+        }
+        $("#container").html(li);
+
+    }
+    rander();
+    var cid;
+    $("#container").delegate("li","tap",function(){
+        var _id=cid=$(this).attr('data-id');
+        loadImg(_id);
+    });
+    var wImage=$("#large_img");
+    var domImag=wImage[0];
+
+    function   loadImg(id,callback){
+        $("#largeImg").css({
+            width:zWin.width(),
+            height:zWin.height()
+        }).show();
+        $("#container").hide();
+        var imgSrc='img/'+id+'.jpg';
+        var imageObj=new Image();
+        imageObj.onload=function(){
+            var w=this.width;
+            var h=this.height;
+            var winWidth=zWin.width();
+            var winHeight=zWin.height();
+            var realw=winHeight*w/h;
+            var paddingleft=parseInt((winWidth-realw)/2);
+            var  realh=winWidth*h/w;
+            var paddingtop=parseInt((winHeight-realh)/2);
+            wImage.css({width:'auto',
+                height:"auto",
+                paddingLeft:0,
+                paddingTop:0});
+            if(h/w>1.2){
+                wImage.attr('src',imgSrc).css(
+                        ' height',winHeight
+                ).css("padding-left",paddingleft);
+            }else{
+                wImage.attr('src',imgSrc).css({
+                    width:winWidth,
+                    paddingTop:paddingtop});
+            }
+            callback&&callback();
+        }
+        imageObj.src=imgSrc;
+    }
+    $("#largeImg")[0].addEventListener("tap",tapp,false);
+    function  tapp(){
+        $(this).hide();
+        $("#container").show();
+    };
+
+//    $("#largeImg")[0].addEventListener("swipeLeft",slidLeft,false);
+//        function slidLeft(){
+//            cid++;
+//            if(cid>total){
+//                cid=total;
+//            }else{
+//                loadImg(cid,function(){
+//                    wImage.removeClass().addClass('animated bounceInRight');
+//                });
+//            }
+//        };
+//        $("#largeImg")[0].addEventListener("swipeRight",slidRight,false);
+//        function slidRight(){
+//            cid--;
+//            if(cid<1){
+//                cid=1;
+//            }else{
+//                loadImg(cid,function(){
+//                    wImage[0].addEventListener("webkitAnimationEnd",function(){
+//                        wImage.removeClass('animated bounceInLeft',false);
+//                        wImage[0].removeEventListener("webkitAnimationEnd");
+//                    },false);
+//                    wImage.addClass('animated bounceInLeft');
+//                });
+//            }
+//        };
+//    var startX;
+//    var deltaX;
+    var largeImge=document.getElementById("largeImg");
+//    largeImge.addEventListener("touchstart",function(){
+//       startX= largeImge.touches.pageX;
+//        deltaX=0;
+//    },false);
+//    largeImge.addEventListener("mousedown",function(e){
+//        console.log(e);
+//        startX= e.pageX;
+//
+////        deltaX= $("#largeImg")[0].touches[0].pageX-startX;
+//    },false);
+//    largeImge.addEventListener("mousemove",function(e){
+//
+//       deltaX=startX- e.pageX;
+//        console.log(deltaX);
+//
+////        deltaX= $("#largeImg")[0].touches[0].pageX-startX;
+//    },false);
+//    largeImge.addEventListener("mouseup",function(e){
+//
+//    console.log("mouseup");
+//        console.log(deltaX);
+//        if(deltaX>50) {
+//            alert(1);
+//        }
+//        else  if(deltaX<-50){
+//            alert(2)
+//        }
+//        else{
+//            alert(3);
+//        }
+//    },false)
+    largeImge.addEventListener("swipestart",function(e){
+        startX= e.detail.x;
+    },false);
+    largeImge.addEventListener("swipeend",function(e){
+        deltaX=startX-e.detail.x;
+        if(deltaX>20){
+                        cid++;
+            if(cid>total){
+                cid=total;
+            }else{
+                loadImg(cid,function(){
+                    domImag.addEventListener("webkitAnimationEnd",function(){
+                        wImage.removeClass('animated bounceInRight');
+                        domImag.removeEventListener("webkitAnimationEnd",false);
+                    },false);
+                    wImage.addClass('animated bounceInRight');
+                });
+            }
+        }else if(deltaX<-20){
+            cid--;
+            if(cid<1){
+                cid=1;
+            }else{
+                loadImg(cid,function(){
+                    domImag.addEventListener("webkitAnimationEnd",function(){
+                        wImage.removeClass('animated bounceInLeft');
+                        domImag.removeEventListener("webkitAnimationEnd",false);
+                    },false);
+                    wImage.addClass('animated bounceInLeft');
+                });
+            }
+        }
+    },false);
+//    document.addEventListener("touchstart",function(event){
+//           event.preventDefault();
+//        alert(1);
+//            },false);
+//    document.addEventListener("touchend",function(){
+//
+//        alert(1);
+//    },false);
+
+
+
+
+
+
+
+</script>
+</html>
